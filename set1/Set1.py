@@ -74,8 +74,3 @@ plt.title("Vibration amplitude at different times for h(x)")
 plt.xlabel("Position x")
 plt.ylabel("Vibration Amplitude")
 plt.show()
-
-# Does it work??
-
-def TEST(yes):
-    return "No, goddamnit"
