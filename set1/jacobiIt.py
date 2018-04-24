@@ -256,7 +256,43 @@ def Convergence_Measure(function = "Jac", w=1):
         plt.ylabel("$\delta$")
         plt.yscale('log')
         plt.show()
+
+
+def Error():
+    w = 1.7
+    Best_error = 10000
+    Square_errors = []
+    Ws = []
+    best_w = 1.7
+    while w <= 1.94:
+        SOR = Grid(N, 0, 300, "SOR", w)
+        Data = SOR.run()
+        c_values = Data[0][0]               # The estimated C values
+        yticks = [i/50 for i in range(50)]  # The analytical C values
+
+        # error calculation
+        error = 0
+        for y in yticks:
+            error += (y-c_values[int(y*50)])**2
+
+        if error < Best_error:
+            Best_error = error
+            best_w = w
+
+        Ws.append(w)
+        Square_errors.append(error)
         
+        w+=0.01
+
+    print("Best w found was " +str(best_w) + "with an error of: ", Best_error)
+
+    plt.plot(Ws, Square_errors)
+    plt.xlabel("W")
+    plt.ylabel("Square error")
+    plt.yscale('log')
+    plt.title("Error measured for different W")
+    plt.show()
+    
 if __name__ == '__main__':
     # Initial conditions
     N = 50
@@ -267,8 +303,9 @@ if __name__ == '__main__':
     Gauss = False                   # True if you want results, false if u want to skip
     SOR = False                     # True if you want results, false if u want to skip
     Comparance = False
-    Convergence = True              
-    
+    Convergence = False             
+    ErrorCalculation = True
+                                    
     if Jacobi:
         J()
 
@@ -284,3 +321,6 @@ if __name__ == '__main__':
     if Convergence:
         Convergence_Measure()
         Convergence_Measure(function = "SOR")
+
+    if ErrorCalculation:
+        Error()
