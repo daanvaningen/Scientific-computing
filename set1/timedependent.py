@@ -11,6 +11,7 @@ class Grid:
         self.dt = dt
         self.D = D
         self.const = self.dt*self.D/(self.dx**2)
+        print(self.const)
         self.grid = np.zeros((N, N))
 
     def step(self):
@@ -61,13 +62,17 @@ if __name__ == '__main__':
         if(t0001 and T > 0.001):
             t0001 = False
             res.append(grid.grid[0])
+            t0001_grid = grid.grid
         elif(t001 and T > 0.01):
             t001 = False
             res.append(grid.grid[0])
+            t001_grid = grid.grid
         elif(t01 and T > 0.1):
             t01 = False
             res.append(grid.grid[0])
+            t01_grid = grid.grid
 
+    t1_grid = grid.grid
     res.append(grid.grid[0])
 
     analytic0001 = []
@@ -86,18 +91,18 @@ if __name__ == '__main__':
     # analytic1.append(1.0)
     x = [0, 5, 10, 15, 20, 25, 30, 35, 40]
     xticks = [i/float(N) for i in x]
-    # plt.figure();
-    # plt.plot(res[0], label="t = 0.001")
-    # plt.plot(res[1], label="t = 0.01")
-    # plt.plot(res[2], label="t = 0.1")
-    # plt.plot(res[3], label="t = 1")
-    # plt.legend()
-    # plt.xlabel("y")
-    # plt.ylabel("c")
-    # plt.xticks(x, xticks, rotation='vertical')
-    # plt.title("Numerical solution for concentration. t =" + `dt` + ", N = " + `N`)
-    # plt.show()
-
+    plt.figure();
+    plt.plot(res[0], label="t = 0.001")
+    plt.plot(res[1], label="t = 0.01")
+    plt.plot(res[2], label="t = 0.1")
+    plt.plot(res[3], label="t = 1")
+    plt.legend()
+    plt.xlabel("y")
+    plt.ylabel("c")
+    plt.xticks(x, xticks, rotation='vertical')
+    plt.title("Numerical solution for concentration. t =" + `dt` + ", N = " + `N`)
+    plt.show()
+    #
     plt.figure()
     plt.plot(analytic0001, label="t=0.001")
     plt.plot(analytic001, label="t=0.01")
@@ -109,15 +114,35 @@ if __name__ == '__main__':
     plt.xticks(x, xticks, rotation='vertical')
     plt.title("Analytical solution for concentration. t =" + `dt` + ", N = " + `N`)
     plt.show()
+    #
+    # plt.figure()
+    # plt.plot(abs(analytic0001 - res[0]), label="absolute error t=0.001")
+    # plt.plot(abs(analytic001 - res[1]), label="absolute error t=0.01")
+    # plt.plot(abs(analytic01 - res[2]), label="absolute error t=0.1")
+    # plt.plot(abs(analytic1 - res[3]), label="absolute error t=1")
+    # plt.legend()
+    # plt.xlabel("y")
+    # plt.ylabel("c")
+    # plt.xticks(x, xticks, rotation='vertical')
+    # plt.title("Error analysis. t =" + `dt` + ", N = " + `N`)
+    # plt.show()
 
-    plt.figure()
-    plt.plot(abs(analytic0001 - res[0]), label="absolute error t=0.001")
-    plt.plot(abs(analytic001 - res[1]), label="absolute error t=0.01")
-    plt.plot(abs(analytic01 - res[2]), label="absolute error t=0.1")
-    plt.plot(abs(analytic1 - res[3]), label="absolute error t=1")
-    plt.legend()
-    plt.xlabel("y")
-    plt.ylabel("c")
-    plt.xticks(x, xticks, rotation='vertical')
-    plt.title("Error analysis. t =" + `dt` + ", N = " + `N`)
+
+    plt.subplot(221)
+    plt.imshow(np.rot90(t0001_grid,1), cmap='hot')
+    plt.title('t = 0.001')
+    plt.colorbar()
+    plt.subplot(222)
+    plt.imshow(np.rot90(t001_grid,1), cmap='hot')
+    plt.title('t = 0.01')
+    plt.colorbar()
+    plt.subplot(223)
+    plt.imshow(np.rot90(t01_grid,1), cmap='hot')
+    plt.title('t = 0.1')
+    plt.colorbar()
+    plt.subplot(224)
+    plt.imshow(np.rot90(t1_grid, 1) , cmap='hot')
+    plt.title('t = 1')
+    plt.subplots_adjust(hspace=0.5)
+    plt.colorbar()
     plt.show()
