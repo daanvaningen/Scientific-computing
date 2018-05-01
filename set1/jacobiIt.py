@@ -14,7 +14,7 @@ class Grid:
         self.w = w                          # The w value for SOR iteration
         self.deltas = []                    # The convergence measures
         self.Object = Object                # A matrix containing the information of objects
-        
+
         if form == "SOR":
             self.const = w/4.0              # Value dependent on W
         else:
@@ -66,7 +66,7 @@ class Grid:
             elif self.form == "Jac":
                 if(j == 0 or j == self.N-1):
                     return j/(self.N-1)
-                
+
                 elif(i == 0):
                     return self.grid[0, j] + self.const*(self.grid[1, j] +
                             self.grid[N-1, j] + self.grid[0, j+1] + self.grid[0, j-1] - 4*self.grid[0,j])
@@ -207,7 +207,7 @@ def S():
     plt.xlabel('x')
     plt.colorbar()
     plt.show()
-    
+
 def Compare():
     SOR_ = Grid(N, 0, Max_Iterations, "SOR", w)
     GAUSS_ = Grid(N, 0, Max_Iterations, "Gauss")
@@ -246,7 +246,7 @@ def Convergence_Measure(function = "Jac", w=1):
         gauss = Grid(N, 0, Max_Iterations, "Gauss")
         data2 = gauss.run()
         delta_values2 = data2[1]
-        
+
         iterations = [x for x in range(1, len(delta_values1)+1)]
 
         plt.plot(iterations, delta_values1, label = "Jacobi")
@@ -270,7 +270,7 @@ def Convergence_Measure(function = "Jac", w=1):
         SOR3 = Grid(N, 0, Max_Iterations, "SOR", 1.5)
         data3 = SOR3.run()
         delta_values3 = data3[1]
-        
+
         iterations = [x for x in range(1, len(delta_values1)+1)]
 
         plt.plot(iterations, delta_values1, label = "w = 0.5")
@@ -307,7 +307,7 @@ def Error():
 
         Ws.append(w)
         Square_errors.append(error)
-        
+
         w+=0.01
 
     print("Best w found was " +str(best_w) + "with an error of: ", Best_error)
@@ -318,7 +318,7 @@ def Error():
     plt.yscale('log')
     plt.title("Error measured for different W")
     plt.show()
-    
+
 if __name__ == '__main__':
     # Initial conditions
     N = 50
@@ -329,7 +329,7 @@ if __name__ == '__main__':
     Gauss = False                   # True if you want results, false if u want to skip
     SOR = True                    # True if you want results, false if u want to skip
     Comparance = False
-    Convergence = False             
+    Convergence = False
     ErrorCalculation = True
     ObjectGrid = True
 
@@ -337,7 +337,7 @@ if __name__ == '__main__':
         Grid_ = ObjectCreation(10)
     else:
         Grid_ = np.zeros((N, N))
-        
+
     if Jacobi:
         J()
 
