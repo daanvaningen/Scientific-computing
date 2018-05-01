@@ -17,14 +17,22 @@ class Grid:
         self.deltas = []                    # The convergence measures
         self.Object = Object                # A matrix containing the information of objects
         self.init_random_walker()
+        self.candidates = []
+        self.total_cluster = []
+
 
     # The grid will update untill certain criteria are met.
     def run(self):
         Stable = False
         while not Stable and self.Iterations < self.MaxIt:
-            print self.Iterations
-            self.move_random_walker()
             self.Iterations += 1
+            print self.Iterations
+            recalculate_cluster = self.move_random_walker()
+            if(recalculate_cluster):
+                self.candidates = []
+                self.total_cluster = []
+                self.get_object_edges()
+
             tempgrid = np.zeros((self.N, self.N))
             Stable = True           # Unless determined otherwise
             delta = 0               # check the largest convergence measure
@@ -65,7 +73,8 @@ class Grid:
         self.rand_walk_y = 0
 
     def move_random_walker(self):
-        r = random.randint(0.3):
+        print self.rand_walk_x, self.rand_walk_y
+        r = random.randint(0, 3)
         if r == 0:
             self.rand_walk_x += 1
         elif r == 1:
@@ -78,12 +87,42 @@ class Grid:
         # Check boundry
         if(self.rand_walk_y >= self.N - 1 or self.rand_walk_y < 0):
             self.init_random_walker()
-        elif(self.rand_walk_x < 0):
+            return False
+        if(self.rand_walk_x < 0):
             self.rand_walk_x = self.N - 1
         elif(self.rand_walk_x > self.N - 1):
             self.rand_walk_x = 0
 
-        
+        if (self.rand_walk_x, self.rand_walk_y) in self.candidates:
+            self.Object[self.rand_walk_x, self.rand_walk_y] = 1
+            print self.rand_walk_x, self.rand_walk_y
+            return True
+
+        return False
+
+    def get_object_edges(self, x, y):
+        self.total_cluster.append((x,y))
+        neighbours = [(x+1, y), (x-1, y), (x, y+1), (x, y-1)]
+        cluster = []
+        for neighbour in neighbours:
+            if(neighbour[0] < 0):
+                neighbour = (self.N - 1, neighbour[1])
+            elif(neighbour[0] > self.N - 1):
+                neighbour = (0, neighbour[1])
+            if(neighbour[1] < 0 or neighbour[1] > self.N - 1):
+                continue
+
+            if(self.Object[neighbour[0], neighbour[1]] == 1):
+                cluster.append(neighbour)
+            else:
+                if not neighbour in self.candidates:
+                    self.candidates.append(neighbour)
+
+        for item in cluster:
+            if not item in self.total_cluster:
+                self.get_object_edges(item[0], item[1])
+
+
 def ObjectCreation(size):
     grid = np.zeros((N, N))
     radius = int(size/2.0)
@@ -103,6 +142,8 @@ if __name__ == '__main__':
     Grid_ = np.zeros((N,N))
     Grid_[N/2, N-1] = 1
     MC = Grid(N, 0, Max_Iterations, w, Object = Grid_)
+    MC.get_object_edges(N/2, N-1)
+    # print MC.candidates
     eq1 = MC.run()
     eq1[0][MC.rand_walk_x, MC.rand_walk_y] = 1
 
