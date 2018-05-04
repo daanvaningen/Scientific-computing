@@ -3,7 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.special import erfc
 import math
-from numba import jit
+# from numba import jit
+from tqdm import tqdm
 
 class Grid:
     def __init__(self, N, Epsilon, Max_Iterations, w=1, Object= 0):
@@ -19,34 +20,35 @@ class Grid:
         self.init_random_walker()
         self.candidates = []
         self.total_cluster = []
-
+        self.get_object_edges(self.N/2, 0)
 
     # The grid will update untill certain criteria are met.
     def run(self):
-        Stable = False
-        while not Stable and self.Iterations < self.MaxIt:
+        # Stable = False
+        for _ in tqdm(range(self.MaxIt)):
             self.Iterations += 1
-            print self.Iterations
+            # print self.Iterations
             recalculate_cluster = self.move_random_walker()
             if(recalculate_cluster):
+                self.init_random_walker()
                 self.candidates = []
                 self.total_cluster = []
-                self.get_object_edges()
+                self.get_object_edges(self.N/2, 0)
 
             tempgrid = np.zeros((self.N, self.N))
-            Stable = True           # Unless determined otherwise
-            delta = 0               # check the largest convergence measure
+            # Stable = True           # Unless determined otherwise
+            # delta = 0               # check the largest convergence measure
             for i in range(self.N):
                 for j in range(self.N):
                     value = self.get_boundry_values(i, j, tempgrid)
                     tempgrid[i,j] = value
-                    if abs(value - self.grid[i,j]) > self.Epsilon:  # Means not yet stable
-                        Stable = False
-                        if abs(value - self.grid[i,j]) > delta:
-                            delta = abs(value - self.grid[i,j])
+                    # if abs(value - self.grid[i,j]) > self.Epsilon:  # Means not yet stable
+                    #     Stable = False
+                    #     if abs(value - self.grid[i,j]) > delta:
+                    #         delta = abs(value - self.grid[i,j])
 
-            self.deltas.append(delta)
             self.grid = tempgrid
+
         return self.grid, self.deltas
 
     # @jit
@@ -73,16 +75,24 @@ class Grid:
         self.rand_walk_y = 0
 
     def move_random_walker(self):
-        print self.rand_walk_x, self.rand_walk_y
-        r = random.randint(0, 3)
+        # r = random.randint(0, 3)
+        # if r == 0:
+        #     self.rand_walk_x += 1
+        # elif r == 1:
+        #     self.rand_walk_x -= 1
+        # elif r == 2:
+        #     self.rand_walk_y += 1
+        # elif r == 3:
+        #     self.rand_walk_y -= 1
+
+        # Dont move up?
+        r = random.randint(0, 2)
         if r == 0:
             self.rand_walk_x += 1
         elif r == 1:
             self.rand_walk_x -= 1
         elif r == 2:
             self.rand_walk_y += 1
-        elif r == 3:
-            self.rand_walk_y -= 1
 
         # Check boundry
         if(self.rand_walk_y >= self.N - 1 or self.rand_walk_y < 0):
@@ -93,9 +103,10 @@ class Grid:
         elif(self.rand_walk_x > self.N - 1):
             self.rand_walk_x = 0
 
+        # print self.rand_walk_x, self.rand_walk_y
         if (self.rand_walk_x, self.rand_walk_y) in self.candidates:
-            self.Object[self.rand_walk_x, self.rand_walk_y] = 1
             print self.rand_walk_x, self.rand_walk_y
+            self.Object[self.rand_walk_x, self.rand_walk_y] = 1
             return True
 
         return False
@@ -138,23 +149,25 @@ if __name__ == '__main__':
     # Initial conditions
     N = 50
     w = 1.2
-    Max_Iterations = 100
+    Max_Iterations = 10000
     Grid_ = np.zeros((N,N))
-    Grid_[N/2, N-1] = 1
+    Grid_[N/2, 0] = 1
     MC = Grid(N, 0, Max_Iterations, w, Object = Grid_)
-    MC.get_object_edges(N/2, N-1)
     # print MC.candidates
     eq1 = MC.run()
+    # print MC.total_cluster
     eq1[0][MC.rand_walk_x, MC.rand_walk_y] = 1
-
+    masked = np.ma.masked_where(MC.Object < 0.9, MC.Object)
+    #
     x = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
     xticks = [i/float(N) for i in x]
     yticks = [i/50 for i in range(50)]
     plt.imshow(np.rot90(eq1[0],1), origin = 'lower')
+    plt.colorbar()
+    plt.imshow(np.rot90(masked,1), cmap='Greys', interpolation=None)
     plt.title("MC DLA")
     # plt.xticks(x, xticks)
     # plt.yticks(x, xticks)
     plt.ylabel('y')
     plt.xlabel('x')
-    plt.colorbar()
     plt.show()
