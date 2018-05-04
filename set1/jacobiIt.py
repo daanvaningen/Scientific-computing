@@ -13,7 +13,6 @@ class Grid:
         self.grid = np.zeros((N, N))        # Making grid of n x n
         self.w = w                          # The w value for SOR iteration
         self.deltas = []                    # The convergence measures
-        self.Object = Object                # A matrix containing the information of objects
 
         if form == "SOR":
             self.const = w/4.0              # Value dependent on W
@@ -26,6 +25,7 @@ class Grid:
     def run(self):
         Stable = False
         while not Stable and self.Iterations < self.MaxIt:
+            # print(self.Iterations)
             self.Iterations += 1
             tempgrid = np.zeros((self.N, self.N))
             Stable = True           # Unless determined otherwise
@@ -44,38 +44,19 @@ class Grid:
         return self.grid, self.deltas
 
     def get_boundry_values(self, i, j, tempgrid):
-        # Checking whether it is part of an object
-        if self.Object[i,j] ==1:
-            return 0
+        # The values when we do jacobi iterations
+        if(j == 0 or j == self.N-1):
+            return j/(self.N-1)
+
+        elif(i == 0):
+            return self.grid[0, j] + self.const*(self.grid[1, j] +
+                    self.grid[N-1, j] + self.grid[0, j+1] + self.grid[0, j-1] - 4*self.grid[0,j])
+        elif(i == self.N-1):
+            return self.grid[i, j] + self.const*(self.grid[1, j] +
+                    self.grid[i-1, j] + self.grid[i, j+1] + self.grid[i, j-1] - 4*self.grid[i,j])
         else:
-            # The values when we do a jacobi iteration
-            if self.form == "Gauss" or self.form == "SOR":
-                if(j == 0 or j == self.N-1):
-                    return j/(self.N-1)
-                elif(i == 0):
-                    return  self.const*(self.grid[1, j] +
-                            self.grid[N-1, j] + self.grid[0, j+1] + tempgrid[0, j-1]) + (1-self.w)*self.grid[i,j]
-                elif(i == self.N-1):
-                    return self.const*(self.grid[1, j] +
-                            tempgrid[i-1, j] + self.grid[i, j+1] + tempgrid[i, j-1]) + (1-self.w)*self.grid[i,j]
-                else:
-                    return self.const*(self.grid[i+1, j] +
-                            tempgrid[i-1, j] + self.grid[i, j+1] + tempgrid[i, j-1]) + (1-self.w)*self.grid[i,j]
-
-            # The values when we do jacobi iterations
-            elif self.form == "Jac":
-                if(j == 0 or j == self.N-1):
-                    return j/(self.N-1)
-
-                elif(i == 0):
-                    return self.grid[0, j] + self.const*(self.grid[1, j] +
-                            self.grid[N-1, j] + self.grid[0, j+1] + self.grid[0, j-1] - 4*self.grid[0,j])
-                elif(i == self.N-1):
-                    return self.grid[i, j] + self.const*(self.grid[1, j] +
-                            self.grid[i-1, j] + self.grid[i, j+1] + self.grid[i, j-1] - 4*self.grid[i,j])
-                else:
-                    return self.grid[i, j] + self.const*(self.grid[i+1, j] +
-                            self.grid[i-1, j] + self.grid[i, j+1] + self.grid[i, j-1] - 4*self.grid[i,j])
+            return self.grid[i, j] + self.const*(self.grid[i+1, j] +
+                    self.grid[i-1, j] + self.grid[i, j+1] + self.grid[i, j-1] - 4*self.grid[i,j])
 
 
 def ObjectCreation(size):
@@ -321,38 +302,57 @@ def Error():
 
 if __name__ == '__main__':
     # Initial conditions
-    N = 50
+    N = 256
     w = 1.2                       # For the SOR model
-    Max_Iterations = 500
+    Max_Iterations = 100000
     Max_Iterations_SOR = 500        # Max iterations specifically for SOR
-    Jacobi = False                  # True if you want results, false if u want to skip
-    Gauss = False                   # True if you want results, false if u want to skip
-    SOR = True                    # True if you want results, false if u want to skip
-    Comparance = False
-    Convergence = False
-    ErrorCalculation = True
-    ObjectGrid = True
 
-    if ObjectGrid:
-        Grid_ = ObjectCreation(10)
-    else:
-        Grid_ = np.zeros((N, N))
+    Jacobi10_3 = Grid(N, 10**(-5), Max_Iterations, "Jac")
 
-    if Jacobi:
-        J()
+    # Run the model
+    Equilibrium3 = Jacobi10_3.run()
+    #
+    # x = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
+    # xticks = [i/float(N) for i in x]
 
-    if Gauss:
-        G()
+    plt.imshow(np.rot90(Equilibrium3[0],3), origin = 'lower')
+    plt.title("Stable state with Jacobi iteration with epsilon = 10^-3")
+    # plt.xticks(x, xticks)
+    # plt.yticks(x, xticks)
+    plt.ylabel('y')
+    plt.xlabel('x')
+    plt.colorbar()
+    plt.show()
 
-    if SOR:
-        S()
-
-    if Comparance:
-        Compare()
-
-    if Convergence:
-        Convergence_Measure()
-        Convergence_Measure(function = "SOR")
-
-    if ErrorCalculation:
-        Error()
+    # np.save('256x256_2', Equilibrium3[0])
+    # Jacobi = False                  # True if you want results, false if u want to skip
+    # Gauss = False                   # True if you want results, false if u want to skip
+    # SOR = True                    # True if you want results, false if u want to skip
+    # Comparance = False
+    # Convergence = False
+    # ErrorCalculation = True
+    # ObjectGrid = True
+    #
+    # if ObjectGrid:
+    #     Grid_ = ObjectCreation(10)
+    # else:
+    #     Grid_ = np.zeros((N, N))
+    #
+    # if Jacobi:
+    #     J()
+    #
+    # if Gauss:
+    #     G()
+    #
+    # if SOR:
+    #     S()
+    #
+    # if Comparance:
+    #     Compare()
+    #
+    # if Convergence:
+    #     Convergence_Measure()
+    #     Convergence_Measure(function = "SOR")
+    #
+    # if ErrorCalculation:
+    #     Error()
