@@ -15,16 +15,15 @@ class Grid:
         self.grid = np.zeros((N, N))        # Making grid of n x n
         self.w = w
         self.const = w/4               # The w value for SOR iteration
-        self.deltas = []                    # The convergence measures
         self.Object = Object                # A matrix containing the information of objects
         self.init_random_walker()
         self.candidates = []
         self.total_cluster = []
         self.get_object_edges(self.N/2, 0)
+        self.stable = False
 
     # The grid will update untill certain criteria are met.
     def run(self):
-        Stable = False
         for _ in tqdm(range(self.MaxIt)):
             self.Iterations += 1
             # print self.Iterations
@@ -34,28 +33,21 @@ class Grid:
                 self.candidates = []
                 self.total_cluster = []
                 self.get_object_edges(self.N/2, 0)
-                Stable = False
+                self.stable = False
 
             tempgrid = np.zeros((self.N, self.N))
-            if not Stable:
-                Stable = True
-                delta = 0               # check the largest convergence measure
+            if not self.stable:
+                self.stable = True
                 for i in range(self.N):
                     for j in range(self.N):
                         value = self.get_boundry_values(i, j, tempgrid)
                         tempgrid[i,j] = value
                         if abs(value - self.grid[i,j]) > self.Epsilon:  # Means not yet stable
-                            Stable = False
-                            if abs(value - self.grid[i,j]) > delta:
-                                delta = abs(value - self.grid[i,j])
-                self.deltas.append(delta)
+                            self.stable = False
+
                 self.grid = tempgrid
 
-            else:
-                print "Stable"
-                break
-
-        return self.grid, self.deltas
+        return self.grid
 
     # @jit
     def get_boundry_values(self, i, j, tempgrid):
@@ -111,7 +103,7 @@ class Grid:
 
         # print self.rand_walk_x, self.rand_walk_y
         if (self.rand_walk_x, self.rand_walk_y) in self.candidates:
-            print self.rand_walk_x, self.rand_walk_y
+            # print self.rand_walk_x, self.rand_walk_y
             self.Object[self.rand_walk_x, self.rand_walk_y] = 1
             return True
 
@@ -155,38 +147,30 @@ if __name__ == '__main__':
     # Initial conditions
     N = 256
     w = 1.2
-    Max_Iterations = 100000
+    Max_Iterations = 3000000
     Grid_ = np.zeros((N,N))
     Grid_[N/2, 0] = 1
-    MC = Grid(N, 10**-5, Max_Iterations, w, Object = Grid_)
+    saved = np.load('256x256_2.npy')
+    MC = Grid(N, 10**-4, Max_Iterations, w, Object = Grid_)
+    MC.grid = saved
+    MC.stable = True
     # print MC.candidates
-    # eq1 = MC.run()
+    eq1 = MC.run()
     # print MC.total_cluster
     # eq1[0][MC.rand_walk_x, MC.rand_walk_y] = 1
-    # masked = np.ma.masked_where(MC.Object < 0.9, MC.Object)
+    masked = np.ma.masked_where(MC.Object < 0.9, MC.Object)
     # #
     # x = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
     # xticks = [i/float(N) for i in x]
     # yticks = [i/50 for i in range(50)]
-    # plt.imshow(np.rot90(eq1[0],1), origin = 'lower')
-    # plt.colorbar()
-    # plt.imshow(np.rot90(masked,1), cmap='Greys', interpolation=None)
-    # plt.title("MC DLA")
-    # # plt.xticks(x, xticks)
-    # # plt.yticks(x, xticks)
-    # plt.ylabel('y')
-    # plt.xlabel('x')
-    # plt.show()
-
-    # np.save('256x256_set2', Equilibrium3[0])
-
-    saved = np.load('256x256_2.npy')
-    plt.imshow(np.rot90(saved,3), origin = 'lower')
+    plt.imshow(np.rot90(eq1,1), origin = 'lower')
     plt.colorbar()
-    # plt.imshow(np.rot90(masked,1), cmap='Greys', interpolation=None)
+    plt.imshow(np.rot90(masked,1), cmap='Greys', interpolation=None)
     plt.title("MC DLA")
     # plt.xticks(x, xticks)
     # plt.yticks(x, xticks)
     plt.ylabel('y')
     plt.xlabel('x')
     plt.show()
+
+    # np.save('256x256_set2', Equilibrium3[0])
