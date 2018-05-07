@@ -159,10 +159,10 @@ def AnalyticalGridCreation(size):
 if __name__ == '__main__':
     # Initial conditions
     N = 512                   # Grid size
-    n = 2.0                    # Nebula
+    n = 1.0                    # Nebula
     w = 1.75                     # For the SOR model
     Epsilon = 0                  # The maximum change you want  to stop iterating
-    Max_Iterations = 2000      # The maximum iterations before shutdown
+    Max_Iterations = 5000      # The maximum iterations before shutdown
     Line_start = True           # True means that you start with the analytical values
 
     # The analytical grid is the starting grid.
