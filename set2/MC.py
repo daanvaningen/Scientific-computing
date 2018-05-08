@@ -7,7 +7,7 @@ import math
 from tqdm import tqdm
 
 class Grid:
-    def __init__(self, N, Epsilon, Max_Iterations, w=1, Object= 0):
+    def __init__(self, N, Epsilon, Max_Iterations, w=1, Object= 0, Pstick=1.0):
         self.MaxIt = Max_Iterations         # stop condition
         self.N = N                          # Grid size
         self.Iterations = 0                 # No. of current iteration
@@ -21,6 +21,7 @@ class Grid:
         self.total_cluster = []
         self.get_object_edges(self.N/2, 0)
         self.stable = False
+        self.Pstick = Pstick
 
     # The grid will update untill certain criteria are met.
     def run(self):
@@ -73,24 +74,18 @@ class Grid:
         self.rand_walk_y = 0
 
     def move_random_walker(self):
-        # r = random.randint(0, 3)
-        # if r == 0:
-        #     self.rand_walk_x += 1
-        # elif r == 1:
-        #     self.rand_walk_x -= 1
-        # elif r == 2:
-        #     self.rand_walk_y += 1
-        # elif r == 3:
-        #     self.rand_walk_y -= 1
-
         # Dont move up?
-        r = random.randint(0, 2)
-        if r == 0:
-            self.rand_walk_x += 1
-        elif r == 1:
-            self.rand_walk_x -= 1
-        elif r == 2:
-            self.rand_walk_y += 1
+        tries = 0
+        while True:
+            if(tries > 10):
+                self.init_random_walker()
+                return False
+            x, y = self.rand_direction()
+            if(not (self.rand_walk_x + x, self.rand_walk_y + y) in self.total_cluster):
+                self.rand_walk_x += x
+                self.rand_walk_y += y
+                break
+            tries += 1
 
         # Check boundry
         if(self.rand_walk_y >= self.N - 1 or self.rand_walk_y < 0):
@@ -104,10 +99,21 @@ class Grid:
         # print self.rand_walk_x, self.rand_walk_y
         if (self.rand_walk_x, self.rand_walk_y) in self.candidates:
             # print self.rand_walk_x, self.rand_walk_y
-            self.Object[self.rand_walk_x, self.rand_walk_y] = 1
-            return True
+            prob = random.random()
+            if(prob < self.Pstick):
+                self.Object[self.rand_walk_x, self.rand_walk_y] = 1
+                return True
 
         return False
+
+    def rand_direction(self):
+        r = random.randint(0, 2)
+        if r == 0:
+            return 1, 0
+        elif r == 1:
+            return -1, 0
+        elif r == 2:
+            return 0,1
 
     def get_object_edges(self, x, y):
         self.total_cluster.append((x,y))
@@ -147,11 +153,11 @@ if __name__ == '__main__':
     # Initial conditions
     N = 256
     w = 1.2
-    Max_Iterations = 3000000
+    Max_Iterations = 10000000
     Grid_ = np.zeros((N,N))
     Grid_[N/2, 0] = 1
     saved = np.load('256x256_2.npy')
-    MC = Grid(N, 10**-4, Max_Iterations, w, Object = Grid_)
+    MC = Grid(N, 10**-4, Max_Iterations, w, Object = Grid_, Pstick=0.9)
     MC.grid = saved
     MC.stable = True
     # print MC.candidates
@@ -166,7 +172,7 @@ if __name__ == '__main__':
     plt.imshow(np.rot90(eq1,1), origin = 'lower')
     plt.colorbar()
     plt.imshow(np.rot90(masked,1), cmap='Greys', interpolation=None)
-    plt.title("MC DLA")
+    plt.title("MC DLA stick prob = 0.9")
     # plt.xticks(x, xticks)
     # plt.yticks(x, xticks)
     plt.ylabel('y')
