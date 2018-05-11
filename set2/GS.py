@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import math
 from tqdm import tqdm
 
@@ -66,11 +67,11 @@ if __name__ == '__main__':
     Du = 0.16 # 0.16
     Dv = 0.08 # 0.08
     f = 0.035 # 0.035
-    k = 0.1 # 0.060
+    k = 0.06 # 0.060
     GS = Grid(N, dt, dx, Du, Dv, f, k)
     GS.init_grid(10, 1)
 
-    iterations = 5000
+    iterations = 1000
     for _ in tqdm(range(iterations)):
         GS.step()
 
@@ -81,8 +82,12 @@ if __name__ == '__main__':
             u[i,j] = GS.grid[i,j][0]
             v[i,j] = GS.grid[i,j][1]
 
+    print np.max(v)
+    norm = mpl.colors.Normalize(vmin=0, vmax=0.6)
     plt.imshow(u)
-    plt.imshow(v)
+    plt.colorbar()
+    plt.imshow(v, norm=norm)
+    plt.colorbar()
     plt.xlabel('x')
     plt.ylabel('y')
     plt.title('Gray Scott diffusion, '+str(iterations)+' iterations \n $D_u = '+str(Du)+'$,\
