@@ -18,7 +18,6 @@ class Grid:
         self.w = w                         # The convergence measures
         self.Object = Object                # A matrix containing the information of objects
         self.const = w/4.0                  # Value dependent on W
-    
 
     # The grid will update untill certain criteria are met.
     def run(self):
@@ -33,7 +32,9 @@ class Grid:
                   
             self.grid = tempgrid
 
-        return self.grid, self.Object, Pgrid
+        
+        return self.grid, self.Object, np.count_nonzero(self.Object)
+        
 
     # a function that creates the Pgrid
     def creation_Pgrid(self):
@@ -158,27 +159,57 @@ def AnalyticalGridCreation(size):
 
 if __name__ == '__main__':
     # Initial conditions
-    N = 512                   # Grid size
+    N = 256                   # Grid size
     n = 1.0                    # Nebula
-    w = 1.75                     # For the SOR model
+    w = 1.7                     # For the SOR model
     Epsilon = 0                  # The maximum change you want  to stop iterating
-    Max_Iterations = 5000      # The maximum iterations before shutdown
+    Max_Iterations = 2000      # The maximum iterations before shutdown
     Line_start = True           # True means that you start with the analytical values
+    w_testing = False            # Whether or not we want to test w
 
-    # The analytical grid is the starting grid.
-    Anal_grid = AnalyticalGridCreation(N)
-    grid_ = ObjectCreation(N)
-    SOR = Grid(N, Epsilon, Max_Iterations, n, w, grid_, Line_start)
-    Equilibrium = SOR.run()
+    if w_testing:
+        N = 100
+        n = 1.99
+        w = 0
+        Max_Iterations = 500
+        test_per_value = 2              # Number of runs per w value
+        mean_object_values = []          # The mean value of objects after all runs per w value.
+        w_values = []
+        
+        while w <= 2.0:
+            w_values.append(w)
+            objectvalues = []
+            for i in range(test_per_value):
+                Anal_grid = AnalyticalGridCreation(N)
+                grid_ = ObjectCreation(N)
+                SOR = Grid(N, Epsilon, Max_Iterations, n, w, grid_, Line_start)
+                Equilibrium = SOR.run()
 
-    for i in range(N):
-        for j in range(N):
-            if Equilibrium[1][i,j] == 1:
-                Equilibrium[0][i,j] = 1.1
+                objectvalues.append(Equilibrium[-1])
+            mean_object_values.append(np.mean(objectvalues))
+            w+=0.02
+            print(w)
+        plt.plot(w_values, mean_object_values)
+        plt.xlabel("w")
+        plt.ylabel("Number of objects")
+        plt.title("The influence between size of object and value of w")
+        plt.show()
+                
+    else:
+        # The analytical grid is the starting grid.
+        Anal_grid = AnalyticalGridCreation(N)
+        grid_ = ObjectCreation(N)
+        SOR = Grid(N, Epsilon, Max_Iterations, n, w, grid_, Line_start)
+        Equilibrium = SOR.run()
 
-    plt.imshow(np.rot90(Equilibrium[0],3), origin = 'lower', cmap = "hot")
-    plt.title("SOR with N=" + str(N) + ", w = " + str(w) + ", n = " + str(n) + ", Iterations = "+str(Max_Iterations))
-    plt.ylabel('y')
-    plt.xlabel('x')
-    plt.colorbar()
-    plt.show()
+        for i in range(N):
+            for j in range(N):
+                if Equilibrium[1][i,j] == 1:
+                    Equilibrium[0][i,j] = 1.1
+
+        plt.imshow(np.rot90(Equilibrium[0],3), origin = 'lower', cmap = "hot")
+        plt.title("SOR with N=" + str(N) + ", w = " + str(w) + ", n = " + str(n) + ", Iterations = "+str(Max_Iterations))
+        plt.ylabel('y')
+        plt.xlabel('x')
+        plt.colorbar()
+        plt.show()
