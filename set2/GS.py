@@ -82,7 +82,6 @@ if __name__ == '__main__':
             u[i,j] = GS.grid[i,j][0]
             v[i,j] = GS.grid[i,j][1]
 
-    print np.max(v)
     norm = mpl.colors.Normalize(vmin=0, vmax=0.6)
     plt.imshow(u)
     plt.colorbar()
