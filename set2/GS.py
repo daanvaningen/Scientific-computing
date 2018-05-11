@@ -18,6 +18,7 @@ class Grid:
         self.grid = np.empty((self.N,self.N, 2))
 
     def init_grid(self, size, noise=0.001, rand_size=5):
+        size = size + random.randint(-2,2)
         radius = int(size/2.0)
         middle = int(self.N/2.0)
         for i in range(N):
@@ -29,16 +30,6 @@ class Grid:
                         self.grid[i,j,0], self.grid[i,j,1] = 0.5, 0.0
                     else:
                         self.grid[i,j,0], self.grid[i,j,1] = 0.5, 0.25
-
-        # Noise
-        # for i in range(N):
-        #     for j in range(N):
-        #         if(random.random() < noise):
-        #             if(i < self.N-rand_size and j < self.N-rand_size):
-        #                 for k in range(rand_size):
-        #                     for l in range(rand_size):
-        #                         self.grid[i+k,j+l,1] = 0.25
-
 
     def step(self):
         tempgrid = np.empty((self.N,self.N, 2))
@@ -72,14 +63,14 @@ if __name__ == '__main__':
     N = 100
     dt = 1.0
     dx = 1.0
-    Du = 0.16
-    Dv = 0.08
-    f = 0.035
-    k = 0.060
+    Du = 0.16 # 0.16
+    Dv = 0.08 # 0.08
+    f = 0.035 # 0.035
+    k = 0.1 # 0.060
     GS = Grid(N, dt, dx, Du, Dv, f, k)
     GS.init_grid(10, 1)
 
-    iterations = 10000
+    iterations = 5000
     for _ in tqdm(range(iterations)):
         GS.step()
 
