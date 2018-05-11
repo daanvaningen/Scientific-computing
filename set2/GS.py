@@ -82,8 +82,13 @@ if __name__ == '__main__':
             u[i,j] = GS.grid[i,j][0]
             v[i,j] = GS.grid[i,j][1]
 
+<<<<<<< HEAD
     print(np.max(v))
     plt.imshow(u, cmap = 'gnuplot')
+=======
+    norm = mpl.colors.Normalize(vmin=0, vmax=0.6)
+    plt.imshow(u)
+>>>>>>> 8470ccc7963006738ba4d5e38d2a4f7f082cdaed
     plt.colorbar()
     plt.xlabel('x')
     plt.ylabel('y')
