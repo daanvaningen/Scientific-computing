@@ -4,6 +4,7 @@ from scipy import linalg
 import math
 
 def laplacian_matrix(size):
+    # L = 1
     right = np.diag(np.ones(size-1), 1)
     left = np.diag(np.ones(size-1), -1)
     up = np.diag(np.ones(size-4), 4)
@@ -12,12 +13,19 @@ def laplacian_matrix(size):
 
     sq = math.sqrt(size)
     matrix = right + left + up + down + diag
-    # for i in range(size):
-    #     for j in range(size):
-    #         if(i <= sq or i >= size - sq-1):
-    #             matrix[i,j] = 0
-    #         elif(j <= sq or j >= size - sq-1):
-    #             matrix[i,j] = 0
+    for i in range(size):
+        for j in range(size):
+            if(i <= sq or i >= size - sq-1):
+                matrix[i,j] = 0
+            elif(j <= sq or j >= size - sq-1):
+                matrix[i,j] = 0
+
+    index = 0
+    while index < size:
+        if(index % sq == 0 or index % sq == 1):
+            for j in range(size):
+                matrix[index, j] = 0
+        index += 1
 
     return matrix
 
@@ -46,5 +54,18 @@ def circle_matrix(L):
     return matrix
 
 if __name__ == '__main__':
-    # print laplacian_matrix(16)
-    print (circle_matrix(16))
+    n = 5
+    m = laplacian_matrix(n**2)
+    eigv = linalg.eig(m)
+    minv = np.argmin(eigv[0])
+
+    xticks = ['v'+str(i)+str(j) for i in xrange(1,n+1) for j in xrange(1,n+1)]
+    x = np.arange(len(eigv[1][minv]))
+    print x
+    plt.figure()
+    plt.bar(x, eigv[1][minv])
+    plt.xticks(x,xticks, rotation=90)
+    plt.title("Eigenvector values, frequency = " + str(eigv[0][minv]))
+    plt.show()
+
+    # print (circle_matrix(16))
