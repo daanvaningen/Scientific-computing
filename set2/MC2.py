@@ -162,11 +162,12 @@ if __name__ == '__main__':
     # Initial conditions
     N = 256
     w = 1.2
-    Max_Iterations = 2000
+    Max_Iterations = 4000
     Grid_ = np.zeros((N,N))
     Grid_[N/2, 0] = 1
     saved = np.load('256x256_2.npy')
-    MC = Grid(N, 10**-4, Max_Iterations, w, Object = Grid_, Pstick=1.0)
+    Pstick = 0.2
+    MC = Grid(N, 10**-4, Max_Iterations, w, Object = Grid_, Pstick=Pstick)
     MC.grid = saved
     MC.stable = True
     # print MC.candidates
@@ -178,10 +179,10 @@ if __name__ == '__main__':
     # x = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
     # xticks = [i/float(N) for i in x]
     # yticks = [i/50 for i in range(50)]
-    plt.imshow(np.rot90(eq1,1), origin = 'lower')
+    plt.imshow(np.rot90(eq1,1), origin = 'lower', cmap='hot')
     plt.colorbar()
     plt.imshow(np.rot90(masked,1), cmap='Greys', interpolation=None)
-    plt.title("MC DLA "+str(Max_Iterations)+' iterations')
+    plt.title("MC DLA "+str(Max_Iterations)+' iterations, \n sticking probability = '+str(Pstick))
     # plt.xticks(x, xticks)
     # plt.yticks(x, xticks)
     plt.ylabel('y')
