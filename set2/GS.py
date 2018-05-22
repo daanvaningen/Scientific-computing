@@ -116,8 +116,8 @@ if __name__ == '__main__':
     dx = 1.0
     Du = 0.16 # 0.16
     Dv = 0.08 # 0.08
-    f = 0.05 # 0.035
-    k = 0.06 # 0.060
+    f = 0.035 # 0.035
+    k = 0.1 # 0.060
     GS = Grid(N, dt, dx, Du, Dv, f, k)
     GS.init_grid(10, 1)
 
@@ -132,11 +132,22 @@ if __name__ == '__main__':
             u[i,j] = GS.grid[i,j][0]
             v[i,j] = GS.grid[i,j][1]
 
-    # norm = mpl.colors.Normalize(vmin=0, vmax=0.6)
+<<<<<<< HEAD
+    print(np.max(v))
+    plt.imshow(u, cmap = 'gnuplot')
+=======
+    norm = mpl.colors.Normalize(vmin=0, vmax=0.6)
     plt.imshow(u)
-    # plt.colorbar()
+    plt.colorbar()
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.title('Gray Scott diffusion, '+str(iterations)+' iterations \n $D_u = '+str(Du)+'$,\
+ $D_v = '+str(Dv)+'$, $f = '+str(f)+'$, $k = '+str(k)+'$' )
+    plt.show()
+
     plt.imshow(v)
-    # plt.colorbar()
+    plt.colorbar()
+>>>>>>> 5c0e75123eab4a87280b00d145931bfc78e75a13
     plt.xlabel('x')
     plt.ylabel('y')
     plt.title('Gray Scott diffusion, '+str(iterations)+' iterations \n $D_u = '+str(Du)+'$,\
