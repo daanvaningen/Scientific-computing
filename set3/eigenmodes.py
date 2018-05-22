@@ -7,15 +7,6 @@ class Grid:
         self.size = size
         self.grid = np.zeros((size+2, size+2))
 
-
-def laplacian_matrix(size):
-    up = -np.diag(np.ones(size-1), 1)
-    low = -np.diag(np.ones(size-1), -1)
-    diag = 2*np.diag(np.ones(size))
-
-    return up + low + diag
-
-if __name__ == '__main__':
-    grid = Grid(10)
-
-    print laplacian_matrix(10)
+def SetMatrix(n):
+    # n is the dimension of grid, therefore the matrix will have dimension n^2
+    M = np.zeros((n**2,n**2))
