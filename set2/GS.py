@@ -132,10 +132,8 @@ if __name__ == '__main__':
             u[i,j] = GS.grid[i,j][0]
             v[i,j] = GS.grid[i,j][1]
 
-<<<<<<< HEAD
     print(np.max(v))
     plt.imshow(u, cmap = 'gnuplot')
-=======
     norm = mpl.colors.Normalize(vmin=0, vmax=0.6)
     plt.imshow(u)
     plt.colorbar()
@@ -147,7 +145,6 @@ if __name__ == '__main__':
 
     plt.imshow(v)
     plt.colorbar()
->>>>>>> 5c0e75123eab4a87280b00d145931bfc78e75a13
     plt.xlabel('x')
     plt.ylabel('y')
     plt.title('Gray Scott diffusion, '+str(iterations)+' iterations \n $D_u = '+str(Du)+'$,\
