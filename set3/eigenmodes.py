@@ -1,21 +1,25 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import linalg
-
-class Grid:
-    def __init__(self, size):
-        self.size = size
-        self.grid = np.zeros((size+2, size+2))
-
+import math
 
 def laplacian_matrix(size):
-    up = -np.diag(np.ones(size-1), 1)
-    low = -np.diag(np.ones(size-1), -1)
-    diag = 2*np.diag(np.ones(size))
+    right = np.diag(np.ones(size-1), 1)
+    left = np.diag(np.ones(size-1), -1)
+    up = np.diag(np.ones(size-4), 4)
+    down = np.diag(np.ones(size-4), -4)
+    diag = -4*np.diag(np.ones(size))
 
-    return up + low + diag
+    sq = math.sqrt(size)
+    matrix = right + left + up + down + diag
+    for i in range(size):
+        for j in range(size):
+            if(i <= sq or i >= size - sq-1):
+                matrix[i,j] = 0
+            elif(j <= sq or j >= size - sq-1):
+                matrix[i,j] = 0
+
+    return matrix
 
 if __name__ == '__main__':
-    grid = Grid(10)
-
-    print laplacian_matrix(10)
+    print laplacian_matrix(16)
