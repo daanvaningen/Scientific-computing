@@ -23,7 +23,7 @@ def laplacian_matrix(gridpoints, reduction = True):
 
     if reduction:
         matrix = matrix[gridpoints+1:size-gridpoints-1, gridpoints+1:size-gridpoints-1]
-        
+
         rows = []# Rows to delete
         for i in range(len(matrix[0,:])):
             if np.all(matrix[i,:] == 0):
@@ -36,14 +36,14 @@ def laplacian_matrix(gridpoints, reduction = True):
             rows.remove(row_to_remove)
 
     return matrix
-    
+
 
 if __name__ == '__main__':
     griddimension = 40
     l = 1
     dx = l/float(griddimension)
     reduction = True
-        
+
     edgesgrid = np.zeros((griddimension, griddimension))
     for i in range(griddimension):
         for j in range(griddimension):
@@ -63,9 +63,9 @@ if __name__ == '__main__':
                 if reduction:
                     if edgesgrid[i,j] == 1:
                         grid[i,j] = EigenVectors[:,index][k]
-                        k+=1                    
+                        k+=1
         index+=1
-        
+
         if abs(Eig) < 110:
             plt.imshow(grid, origin = 'lower')
             plt.title('Frequency = ' + str(abs(round(Eig,2))))
