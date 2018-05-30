@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy import linalg
+from scipy.linalg import eig
 import math
 
 def laplacian_matrix(width, length, Vector, reduction = True):
@@ -35,13 +35,14 @@ def laplacian_matrix(width, length, Vector, reduction = True):
 
 
 if __name__ == '__main__':
-    width = 40              # Aantal grid points in breedte
+    width = 40             # Aantal grid points in breedte
     length = 40             # Als dit een cirle is, dan naar 40 zetten.
-    l=2                     # lengte van drum, als je een circle van straal 1 wilt moet je hier 2 invoeren.
+    l=1                     # lengte van drum, als je een circle van straal 1 wilt moet je hier 2 invoeren.
     dx = l/float(width)
     reduction = True        # Whether or not you want the matrix to be reducted, all zeros are gone
-    circle = True          # Whether the domain is a circle or not
-
+    circle = False          # Whether the domain is a circle or not
+    time_dependent = True
+    
     if not circle:
         edgesgrid = np.zeros((width, length))
         for i in range(width):
@@ -57,7 +58,7 @@ if __name__ == '__main__':
     edgesgrid = edgesgrid.flatten()
 
     Matrix1 = laplacian_matrix(width, length, edgesgrid)/dx**2
-    Eigenvalues, EigenVectors = linalg.eig(Matrix1)
+    Eigenvalues, EigenVectors = eig(Matrix1)
 
     index = 0
     for Eig in Eigenvalues:
@@ -74,7 +75,11 @@ if __name__ == '__main__':
         index+=1
         
         if abs(Eig) <120:
-            plt.imshow(grid, origin = 'lower')
-            plt.title('Frequency = ' + str(abs(round(Eig,2))))
-            plt.colorbar()
-            plt.show()
+            if time_dependent:
+                for t in range(0,10):
+                    grid = grid * (math.sin(abs(Eig)*t/10.0) + math.cos(abs(Eig)*t/10.0))
+
+                    plt.imshow(grid, origin = 'lower')
+                    plt.title('$\lambda$ = ' + str(abs(round(Eig,2))) + '  and t = ' + str(t/10.0))
+                    plt.colorbar()
+                    plt.show()
